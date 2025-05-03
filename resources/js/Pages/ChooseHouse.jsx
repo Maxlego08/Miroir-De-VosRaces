@@ -13,6 +13,7 @@ export default function ChooseHouse({}) {
     const [errors, setErrors] = useState({});
     const [house, setHouse] = useState(null);
     const [isLoading, setIsLoading] = useState(false);
+    const [isSubmitted, setIsSubmitted] = useState(false);
 
     const handleInputChange = (event) => {
         const { name, value } = event.target;
@@ -46,12 +47,19 @@ export default function ChooseHouse({}) {
             newErrors.ambitions = 'Ambitions must be at least 50 characters long';
         }
         setErrors(newErrors);
-        return Object.keys(newErrors).length === 0;
+
+        if (Object.keys(newErrors).length > 0) {
+            setIsSubmitted(false);
+            return false;
+        }
+
+        return true;
     };
 
     const handleFormSubmit = async () => {
         if (!validateForm()) return;
 
+        setIsSubmitted(true);
         setIsLoading(true);
         setHouse(null);
         try {
@@ -68,6 +76,7 @@ export default function ChooseHouse({}) {
         } catch (error) {
             if (error.response?.data?.errors) {
                 setErrors(error.response.data.errors);
+                setIsSubmitted(false);
             } else {
                 setHouse(error.response?.data?.message || 'An error occurred.');
             }
@@ -80,66 +89,76 @@ export default function ChooseHouse({}) {
             <Head title="Sorting Mirror" />
             <div className="p-4 max-w-xl mx-auto bg-white rounded shadow">
                 <h1 className="text-xl font-bold mb-4">Sorting Form</h1>
-                <input
-                    name="name"
-                    placeholder="Player name"
-                    value={form.name}
-                    onChange={handleInputChange}
-                    className={`w-full border p-2 mb-1 rounded ${errors.name ? 'border-red-500' : ''}`}
-                />
-                {errors.name && <p className="text-red-500 text-sm mb-2">{errors.name}</p>}
 
-                <textarea
-                    name="origin"
-                    placeholder="Character's origin (birthplace, family background...)"
-                    value={form.origin}
-                    onChange={handleInputChange}
-                    className={`w-full border p-2 mb-1 rounded ${errors.origin ? 'border-red-500' : ''}`}
-                    rows={4}
-                    maxLength={1000}
-                />
-                {errors.origin && <p className="text-red-500 text-sm mb-2">{errors.origin}</p>}
-                <div className="text-right text-sm text-gray-500 mb-1">
-                    {form.origin.length} / 1000 characters
-                </div>
+                {!isSubmitted ? (
+                    <>
+                        <input
+                            name="name"
+                            placeholder="Player name"
+                            value={form.name}
+                            onChange={handleInputChange}
+                            maxLength={100}
+                            className={`w-full border p-2 mb-1 rounded ${errors.name ? 'border-red-500' : ''}`
+                        }
+                        />
+                        {errors.name && <p className="text-red-500 text-sm mb-2">{errors.name}</p>}
 
-                <textarea
-                    name="personality"
-                    placeholder="Character's personality (traits, flaws, behavior at school...)"
-                    value={form.personality}
-                    onChange={handleInputChange}
-                    className={`w-full border p-2 mb-1 rounded ${errors.personality ? 'border-red-500' : ''}`}
-                    rows={4}
-                    maxLength={1000}
-                />
-                {errors.personality && <p className="text-red-500 text-sm mb-2">{errors.personality}</p>}
-                <div className="text-right text-sm text-gray-500 mb-1">
-                    {form.personality.length} / 1000 characters
-                </div>
+                        <textarea
+                            name="origin"
+                            placeholder="Character's origin (birthplace, family background...)"
+                            value={form.origin}
+                            onChange={handleInputChange}
+                            className={`w-full border p-2 mb-1 rounded ${errors.origin ? 'border-red-500' : ''}`}
+                            rows={4}
+                            maxLength={1000}
+                        />
+                        {errors.origin && <p className="text-red-500 text-sm mb-2">{errors.origin}</p>}
+                        <div className="text-right text-sm text-gray-500 mb-1">
+                            {form.origin.length} / 1000 characters
+                        </div>
 
-                <textarea
-                    name="ambitions"
-                    placeholder="Character's ambitions or dreams"
-                    value={form.ambitions}
-                    onChange={handleInputChange}
-                    className={`w-full border p-2 mb-1 rounded ${errors.ambitions ? 'border-red-500' : ''}`}
-                    rows={4}
-                    maxLength={1000}
-                />
-                {errors.ambitions && <p className="text-red-500 text-sm mb-2">{errors.ambitions}</p>}
-                <div className="text-right text-sm text-gray-500 mb-1">
-                    {form.ambitions.length} / 1000 characters
-                </div>
+                        <textarea
+                            name="personality"
+                            placeholder="Character's personality (traits, flaws, behavior at school...)"
+                            value={form.personality}
+                            onChange={handleInputChange}
+                            className={`w-full border p-2 mb-1 rounded ${errors.personality ? 'border-red-500' : ''}`}
+                            rows={4}
+                            maxLength={1000}
+                        />
+                        {errors.personality && <p className="text-red-500 text-sm mb-2">{errors.personality}</p>}
+                        <div className="text-right text-sm text-gray-500 mb-1">
+                            {form.personality.length} / 1000 characters
+                        </div>
 
-                <button
-                    onClick={handleFormSubmit}
-                    disabled={isLoading}
-                    className="bg-indigo-600 text-white px-4 py-2 rounded"
-                >
-                    {isLoading ? 'Consulting the mirror...' : 'Ask the mirror'}
-                </button>
+                        <textarea
+                            name="ambitions"
+                            placeholder="Character's ambitions or dreams"
+                            value={form.ambitions}
+                            onChange={handleInputChange}
+                            className={`w-full border p-2 mb-1 rounded ${errors.ambitions ? 'border-red-500' : ''}`}
+                            rows={4}
+                            maxLength={1000}
+                        />
+                        {errors.ambitions && <p className="text-red-500 text-sm mb-2">{errors.ambitions}</p>}
+                        <div className="text-right text-sm text-gray-500 mb-1">
+                            {form.ambitions.length} / 1000 characters
+                        </div>
 
-                {house && <div className="mt-4 text-lg font-semibold text-center">{house}</div>}
+                        <button
+                            onClick={handleFormSubmit}
+                            disabled={isLoading}
+                            className="bg-indigo-600 text-white px-4 py-2 rounded"
+                        >
+                            {isLoading ? 'Consulting the mirror...' : 'Ask the mirror'}
+                        </button>
+                    </>
+                ) : (
+                    <div className="text-center text-lg font-medium">
+                        {isLoading && <p>The mirror is thinking...</p>}
+                        {!isLoading && house && <p>{house}</p>}
+                    </div>
+                )}
             </div>
         </>
     )
