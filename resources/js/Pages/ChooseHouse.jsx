@@ -130,7 +130,7 @@ export default function ChooseHouse({}) {
 
     return (
         <>
-            <Head title="Sorting Mirror" />
+            <Head title="Rejoindre une maison" />
             <div className="p-4 mt-4 max-w-xl mx-auto bg-white rounded shadow">
                 <h1 className="text-xl font-bold mb-4">Miroir de VosRaces</h1>
 
