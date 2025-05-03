@@ -1,5 +1,5 @@
-import { Head } from '@inertiajs/react';
-import React, { useState, useEffect, useRef } from 'react';
+import {Head} from '@inertiajs/react';
+import React, {useEffect, useRef, useState} from 'react';
 import axios from "axios";
 
 export default function ChooseHouse({}) {
@@ -11,21 +11,23 @@ export default function ChooseHouse({}) {
         ambitions: ''
     });
     const [errors, setErrors] = useState({});
+    const [houseMessage, setHouseMessage] = useState(null);
     const [house, setHouse] = useState(null);
     const [displayedText, setDisplayedText] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const [isSubmitted, setIsSubmitted] = useState(false);
     const [textSpeed, setTextSpeed] = useState(1);
+    const [showHouseImage, setShowHouseImage] = useState(false);
 
     const indexRef = useRef(0);
     const timeoutRef = useRef(null);
     const houseRef = useRef('');
 
     const handleInputChange = (event) => {
-        const { name, value } = event.target;
+        const {name, value} = event.target;
         if ((name === "origin" || name === "personality" || name === "ambitions") && value.length > 1000) return;
-        setForm({ ...form, [name]: value });
-        setErrors({ ...errors, [name]: '' });
+        setForm({...form, [name]: value});
+        setErrors({...errors, [name]: ''});
     };
 
     const getCsrfToken = () => {
@@ -67,8 +69,9 @@ export default function ChooseHouse({}) {
 
         setIsSubmitted(true);
         setIsLoading(true);
-        setHouse(null);
+        setHouseMessage(null);
         setDisplayedText('');
+        setShowHouseImage(false);
         indexRef.current = 0;
         try {
             const apiClient = axios.create({
@@ -81,13 +84,14 @@ export default function ChooseHouse({}) {
 
             const response = await apiClient.post('/choose-house', form);
             houseRef.current = response.data.message;
-            setHouse(response.data.message);
+            setHouseMessage(response.data.message);
+            setHouse(response.data.house);
         } catch (error) {
             if (error.response?.data?.errors) {
                 setErrors(error.response.data.errors);
                 setIsSubmitted(false);
             } else {
-                setHouse(error.response?.data?.message || 'An error occurred.');
+                setHouseMessage(error.response?.data?.message || 'An error occurred.');
             }
         }
         setIsLoading(false);
@@ -98,8 +102,13 @@ export default function ChooseHouse({}) {
         if (indexRef.current < houseRef.current.length) {
             const char = houseRef.current.charAt(indexRef.current);
             setDisplayedText((prev) => prev + char);
-            indexRef.current++;
 
+            // Déclenche l'affichage progressif de l'image dans la dernière phrase
+            if (!showHouseImage && houseRef.current.length - indexRef.current < 60) {
+                setShowHouseImage(true);
+            }
+
+            indexRef.current++;
             let delay = 40 / textSpeed;
             if (char === '.' || char === '!' || char === '?') delay = 500 / textSpeed;
             else if (char === ',') delay = 250 / textSpeed;
@@ -112,17 +121,17 @@ export default function ChooseHouse({}) {
     };
 
     useEffect(() => {
-        if (house) {
+        if (houseMessage) {
             clearTimeout(timeoutRef.current);
             setDisplayedText('');
             indexRef.current = 0;
             revealText();
         }
         return () => clearTimeout(timeoutRef.current);
-    }, [house]);
+    }, [houseMessage]);
 
     useEffect(() => {
-        if (house && indexRef.current < houseRef.current.length) {
+        if (houseMessage && indexRef.current < houseRef.current.length) {
             revealText();
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -130,9 +139,12 @@ export default function ChooseHouse({}) {
 
     return (
         <>
-            <Head title="Rejoindre une maison" />
+            <Head title="Rejoindre une maison"/>
             <div className="p-4 mt-4 max-w-xl mx-auto bg-white rounded shadow">
-                <h1 className="text-xl font-bold mb-4">Miroir de VosRaces</h1>
+                <div className="text-center mb-4">
+                    <h1 className="text-xl font-bold">Miroir de VosRaces</h1>
+                    <small>Ouvrez votre coeur et laissez le miroir pénétrer votre âme</small>
+                </div>
 
                 {!isSubmitted ? (
                     <>
@@ -192,7 +204,7 @@ export default function ChooseHouse({}) {
                             disabled={isLoading}
                             className="bg-indigo-600 text-white px-4 py-2 rounded"
                         >
-                            {isLoading ? 'Le miroir pense...' : 'Demandez au miroir'}
+                            {isLoading ? 'Le miroir pense...' : 'Questionner le miroir'}
                         </button>
                     </>
                 ) : (
@@ -201,6 +213,12 @@ export default function ChooseHouse({}) {
                         {!isLoading && (
                             <>
                                 <p>{displayedText}</p>
+                                <img
+                                    src={`/images/${house}.webp`}
+                                    alt={house}
+                                    style={{ transition: '5s -webkit-filter linear' }}
+                                    className={`mx-auto mt-4 ${showHouseImage ? 'blur-0' : 'blur-2xl'}`}
+                                />
                                 <div className="mt-4 flex justify-center gap-2">
                                     <button
                                         onClick={() => setTextSpeed((s) => Math.max(s - 0.5, 0.5))}
