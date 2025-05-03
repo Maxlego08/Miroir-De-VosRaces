@@ -1,5 +1,5 @@
 import { Head } from '@inertiajs/react';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from "axios";
 
 export default function ChooseHouse({}) {
@@ -12,6 +12,7 @@ export default function ChooseHouse({}) {
     });
     const [errors, setErrors] = useState({});
     const [house, setHouse] = useState(null);
+    const [displayedText, setDisplayedText] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const [isSubmitted, setIsSubmitted] = useState(false);
 
@@ -62,6 +63,7 @@ export default function ChooseHouse({}) {
         setIsSubmitted(true);
         setIsLoading(true);
         setHouse(null);
+        setDisplayedText('');
         try {
             const apiClient = axios.create({
                 baseURL: import.meta.env.VITE_REACT_APP_API_URL,
@@ -84,6 +86,35 @@ export default function ChooseHouse({}) {
         setIsLoading(false);
     };
 
+    useEffect(() => {
+        if (house) {
+            let index = 0;
+            const delayAfterPunctuation = (char) => {
+                if (char === '.' || char === '!' || char === '?') return 500;
+                if (char === ',') return 250;
+                return 40;
+            };
+
+            const revealText = () => {
+                if (index < house.length) {
+                    const char = house.charAt(index);
+                    setDisplayedText((prev) => prev + char);
+                    index++;
+                    let delay = delayAfterPunctuation(char);
+
+                    // Suspense effect before revealing house name
+                    if (index > house.length - 20 && /[A-Za-z]/.test(char)) {
+                        delay += 150;
+                    }
+
+                    setTimeout(revealText, delay);
+                }
+            };
+
+            revealText();
+        }
+    }, [house]);
+
     return (
         <>
             <Head title="Sorting Mirror" />
@@ -97,9 +128,7 @@ export default function ChooseHouse({}) {
                             placeholder="Player name"
                             value={form.name}
                             onChange={handleInputChange}
-                            maxLength={100}
-                            className={`w-full border p-2 mb-1 rounded ${errors.name ? 'border-red-500' : ''}`
-                        }
+                            className={`w-full border p-2 mb-1 rounded ${errors.name ? 'border-red-500' : ''}`}
                         />
                         {errors.name && <p className="text-red-500 text-sm mb-2">{errors.name}</p>}
 
@@ -154,9 +183,9 @@ export default function ChooseHouse({}) {
                         </button>
                     </>
                 ) : (
-                    <div className="text-center text-lg font-medium">
+                    <div className="text-center text-lg font-medium min-h-[4rem]">
                         {isLoading && <p>The mirror is thinking...</p>}
-                        {!isLoading && house && <p>{house}</p>}
+                        {!isLoading && displayedText && <p>{displayedText}</p>}
                     </div>
                 )}
             </div>
