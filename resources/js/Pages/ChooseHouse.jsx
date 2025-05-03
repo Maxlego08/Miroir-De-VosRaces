@@ -41,16 +41,16 @@ export default function ChooseHouse({}) {
     const validateForm = () => {
         const newErrors = {};
         if (form.name.trim().length < 3) {
-            newErrors.name = 'Name must be at least 3 characters long';
+            newErrors.name = 'Le nom doit comporter au moins 3 caractères';
         }
         if (form.origin.trim().length < 50) {
-            newErrors.origin = 'Origin must be at least 50 characters long';
+            newErrors.origin = 'L’origine doit comporter au moins 50 caractères';
         }
         if (form.personality.trim().length < 50) {
-            newErrors.personality = 'Personality must be at least 50 characters long';
+            newErrors.personality = 'La personnalité doit comporter au moins 50 caractères';
         }
         if (form.ambitions.trim().length < 50) {
-            newErrors.ambitions = 'Ambitions must be at least 50 characters long';
+            newErrors.ambitions = 'Les ambitions doivent comporter au moins 50 caractères';
         }
         setErrors(newErrors);
 
@@ -131,14 +131,14 @@ export default function ChooseHouse({}) {
     return (
         <>
             <Head title="Sorting Mirror" />
-            <div className="p-4 max-w-xl mx-auto bg-white rounded shadow">
-                <h1 className="text-xl font-bold mb-4">Sorting Form</h1>
+            <div className="p-4 mt-4 max-w-xl mx-auto bg-white rounded shadow">
+                <h1 className="text-xl font-bold mb-4">Miroir de VosRaces</h1>
 
                 {!isSubmitted ? (
                     <>
                         <input
                             name="name"
-                            placeholder="Player name"
+                            placeholder="Nom/Prénom du personnage"
                             value={form.name}
                             onChange={handleInputChange}
                             className={`w-full border p-2 mb-1 rounded ${errors.name ? 'border-red-500' : ''}`}
@@ -147,7 +147,7 @@ export default function ChooseHouse({}) {
 
                         <textarea
                             name="origin"
-                            placeholder="Character's origin (birthplace, family background...)"
+                            placeholder="Origine de ton personnage (lieu de naissance, milieu familial)"
                             value={form.origin}
                             onChange={handleInputChange}
                             className={`w-full border p-2 mb-1 rounded ${errors.origin ? 'border-red-500' : ''}`}
@@ -161,7 +161,7 @@ export default function ChooseHouse({}) {
 
                         <textarea
                             name="personality"
-                            placeholder="Character's personality (traits, flaws, behavior at school...)"
+                            placeholder="Caractère du personnage (qualités, défauts, comportement à l’école)"
                             value={form.personality}
                             onChange={handleInputChange}
                             className={`w-full border p-2 mb-1 rounded ${errors.personality ? 'border-red-500' : ''}`}
@@ -175,7 +175,7 @@ export default function ChooseHouse({}) {
 
                         <textarea
                             name="ambitions"
-                            placeholder="Character's ambitions or dreams"
+                            placeholder="Ambitions/rêves du personnage"
                             value={form.ambitions}
                             onChange={handleInputChange}
                             className={`w-full border p-2 mb-1 rounded ${errors.ambitions ? 'border-red-500' : ''}`}
@@ -192,27 +192,27 @@ export default function ChooseHouse({}) {
                             disabled={isLoading}
                             className="bg-indigo-600 text-white px-4 py-2 rounded"
                         >
-                            {isLoading ? 'Consulting the mirror...' : 'Ask the mirror'}
+                            {isLoading ? 'Le miroir pense...' : 'Demandez au miroir'}
                         </button>
                     </>
                 ) : (
                     <div className="text-center text-lg font-medium min-h-[4rem]">
-                        {isLoading && <p>The mirror is thinking...</p>}
+                        {isLoading && <p>Le miroir pense...</p>}
                         {!isLoading && (
                             <>
                                 <p>{displayedText}</p>
                                 <div className="mt-4 flex justify-center gap-2">
                                     <button
-                                        onClick={() => setTextSpeed((s) => Math.min(s + 0.5, 5))}
-                                        className="px-3 py-1 bg-green-500 text-white rounded"
-                                    >
-                                        Speed up
-                                    </button>
-                                    <button
                                         onClick={() => setTextSpeed((s) => Math.max(s - 0.5, 0.5))}
                                         className="px-3 py-1 bg-yellow-500 text-white rounded"
                                     >
-                                        Slow down
+                                        Ralentir
+                                    </button>
+                                    <button
+                                        onClick={() => setTextSpeed((s) => Math.min(s + 0.5, 5))}
+                                        className="px-3 py-1 bg-green-500 text-white rounded"
+                                    >
+                                        Accélérer
                                     </button>
                                 </div>
                             </>
