@@ -31,10 +31,10 @@ class ChooseHouse extends Controller
             return $this->getResponse($fakeResponse);
         }
 
-        $name = $validated['name'];
-        $origin = $validated['origin'];
-        $personality = $validated['personality'];
-        $ambitions = $validated['ambitions'];
+        $name = strip_tags(trim($validated['name']));
+        $origin = strip_tags(trim($validated['origin']));
+        $personality = strip_tags(trim($validated['personality']));
+        $ambitions = strip_tags(trim($validated['ambitions']));
 
         $systemContent = <<<'EOT'
 Tu es le miroir de vosraces de l'univers d'Havengard, une école magique dans un serveur GTA RP inspiré de Harry Potter. Ta mission est de répartir les joueurs dans l'une des quatre maisons suivantes en te basant sur leur caractère, leurs réponses ou leur comportement.
