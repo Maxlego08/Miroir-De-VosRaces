@@ -140,103 +140,105 @@ export default function ChooseHouse({}) {
     return (
         <>
             <Head title="Rejoindre une maison"/>
-            <div className="p-4 mt-4 max-w-xl mx-auto bg-white rounded shadow">
-                <div className="text-center mb-4">
-                    <h1 className="text-xl font-bold">Miroir de VosRaces</h1>
-                    <small>Ouvrez votre coeur et laissez le miroir pénétrer votre âme</small>
-                </div>
-
-                {!isSubmitted ? (
-                    <>
-                        <input
-                            name="name"
-                            placeholder="Nom/Prénom du personnage"
-                            value={form.name}
-                            onChange={handleInputChange}
-                            className={`w-full border p-2 mb-1 rounded ${errors.name ? 'border-red-500' : ''}`}
-                        />
-                        {errors.name && <p className="text-red-500 text-sm mb-2">{errors.name}</p>}
-
-                        <textarea
-                            name="origin"
-                            placeholder="Origine de ton personnage (lieu de naissance, milieu familial)"
-                            value={form.origin}
-                            onChange={handleInputChange}
-                            className={`w-full border p-2 mb-1 rounded ${errors.origin ? 'border-red-500' : ''}`}
-                            rows={4}
-                            maxLength={1000}
-                        />
-                        {errors.origin && <p className="text-red-500 text-sm mb-2">{errors.origin}</p>}
-                        <div className="text-right text-sm text-gray-500 mb-1">
-                            {form.origin.length} / 1000 characters
-                        </div>
-
-                        <textarea
-                            name="personality"
-                            placeholder="Caractère du personnage (qualités, défauts, comportement à l’école)"
-                            value={form.personality}
-                            onChange={handleInputChange}
-                            className={`w-full border p-2 mb-1 rounded ${errors.personality ? 'border-red-500' : ''}`}
-                            rows={4}
-                            maxLength={1000}
-                        />
-                        {errors.personality && <p className="text-red-500 text-sm mb-2">{errors.personality}</p>}
-                        <div className="text-right text-sm text-gray-500 mb-1">
-                            {form.personality.length} / 1000 characters
-                        </div>
-
-                        <textarea
-                            name="ambitions"
-                            placeholder="Ambitions/rêves du personnage"
-                            value={form.ambitions}
-                            onChange={handleInputChange}
-                            className={`w-full border p-2 mb-1 rounded ${errors.ambitions ? 'border-red-500' : ''}`}
-                            rows={4}
-                            maxLength={1000}
-                        />
-                        {errors.ambitions && <p className="text-red-500 text-sm mb-2">{errors.ambitions}</p>}
-                        <div className="text-right text-sm text-gray-500 mb-1">
-                            {form.ambitions.length} / 1000 characters
-                        </div>
-
-                        <button
-                            onClick={handleFormSubmit}
-                            disabled={isLoading}
-                            className="bg-indigo-600 text-white px-4 py-2 rounded"
-                        >
-                            {isLoading ? 'Le miroir pense...' : 'Questionner le miroir'}
-                        </button>
-                    </>
-                ) : (
-                    <div className="text-center text-lg font-medium min-h-[4rem]">
-                        {isLoading && <p>Le miroir pense...</p>}
-                        {!isLoading && (
-                            <>
-                                <p>{displayedText}</p>
-                                <img
-                                    src={`/images/${house}.webp`}
-                                    alt={house}
-                                    style={{ transition: '5s -webkit-filter linear' }}
-                                    className={`mx-auto mt-4 ${showHouseImage ? 'blur-0' : 'blur-2xl'}`}
-                                />
-                                <div className="mt-4 flex justify-center gap-2">
-                                    <button
-                                        onClick={() => setTextSpeed((s) => Math.max(s - 0.5, 0.5))}
-                                        className="px-3 py-1 bg-yellow-500 text-white rounded"
-                                    >
-                                        Ralentir
-                                    </button>
-                                    <button
-                                        onClick={() => setTextSpeed((s) => Math.min(s + 0.5, 5))}
-                                        className="px-3 py-1 bg-green-500 text-white rounded"
-                                    >
-                                        Accélérer
-                                    </button>
-                                </div>
-                            </>
-                        )}
+            <div className="mirror-card max-w-2xl mx-auto">
+                <div className="p-4 max-w-md mx-auto pt-[180px]">
+                    <div className="text-center mb-4">
+                        <h1 className="text-xl font-bold">Miroir de VosRaces</h1>
+                        <small>Ouvrez votre coeur et laissez le miroir pénétrer votre âme</small>
                     </div>
-                )}
+
+                    {!isSubmitted ? (
+                        <>
+                            <input
+                                name="name"
+                                placeholder="Nom/Prénom du personnage"
+                                value={form.name}
+                                onChange={handleInputChange}
+                                className={`w-full border p-2 mb-1 rounded ${errors.name ? 'border-red-500' : ''}`}
+                            />
+                            {errors.name && <p className="text-red-500 text-sm mb-2">{errors.name}</p>}
+
+                            <textarea
+                                name="origin"
+                                placeholder="Origine de ton personnage (lieu de naissance, milieu familial)"
+                                value={form.origin}
+                                onChange={handleInputChange}
+                                className={`w-full border p-2 mb-1 rounded ${errors.origin ? 'border-red-500' : ''}`}
+                                rows={4}
+                                maxLength={1000}
+                            />
+                            {errors.origin && <p className="text-red-500 text-sm mb-2">{errors.origin}</p>}
+                            <div className="text-right text-sm text-gray-500 mb-1">
+                                {form.origin.length} / 1000 characters
+                            </div>
+
+                            <textarea
+                                name="personality"
+                                placeholder="Caractère du personnage (qualités, défauts, comportement à l’école)"
+                                value={form.personality}
+                                onChange={handleInputChange}
+                                className={`w-full border p-2 mb-1 rounded ${errors.personality ? 'border-red-500' : ''}`}
+                                rows={4}
+                                maxLength={1000}
+                            />
+                            {errors.personality && <p className="text-red-500 text-sm mb-2">{errors.personality}</p>}
+                            <div className="text-right text-sm text-gray-500 mb-1">
+                                {form.personality.length} / 1000 characters
+                            </div>
+
+                            <textarea
+                                name="ambitions"
+                                placeholder="Ambitions/rêves du personnage"
+                                value={form.ambitions}
+                                onChange={handleInputChange}
+                                className={`w-full border p-2 mb-1 rounded ${errors.ambitions ? 'border-red-500' : ''}`}
+                                rows={4}
+                                maxLength={1000}
+                            />
+                            {errors.ambitions && <p className="text-red-500 text-sm mb-2">{errors.ambitions}</p>}
+                            <div className="text-right text-sm text-gray-500 mb-1">
+                                {form.ambitions.length} / 1000 characters
+                            </div>
+
+                            <button
+                                onClick={handleFormSubmit}
+                                disabled={isLoading}
+                                className="bg-indigo-600 text-white px-4 py-2 rounded"
+                            >
+                                {isLoading ? 'Le miroir pense...' : 'Questionner le miroir'}
+                            </button>
+                        </>
+                    ) : (
+                        <div className="text-center text-lg font-medium min-h-[4rem]">
+                            {isLoading && <p>Le miroir pense...</p>}
+                            {!isLoading && (
+                                <>
+                                    <p>{displayedText}</p>
+                                    <img
+                                        src={`/images/${house}.webp`}
+                                        alt={house}
+                                        style={{transition: '5s -webkit-filter linear'}}
+                                        className={`mx-auto mt-4 ${showHouseImage ? 'blur-0' : 'blur-2xl'}`}
+                                    />
+                                    <div className="mt-4 flex justify-center gap-2">
+                                        <button
+                                            onClick={() => setTextSpeed((s) => Math.max(s - 0.5, 0.5))}
+                                            className="px-3 py-1 bg-yellow-500 text-white rounded"
+                                        >
+                                            Ralentir
+                                        </button>
+                                        <button
+                                            onClick={() => setTextSpeed((s) => Math.min(s + 0.5, 5))}
+                                            className="px-3 py-1 bg-green-500 text-white rounded"
+                                        >
+                                            Accélérer
+                                        </button>
+                                    </div>
+                                </>
+                            )}
+                        </div>
+                    )}
+                </div>
             </div>
         </>
     )
