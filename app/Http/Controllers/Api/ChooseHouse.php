@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
-use Illuminate\Validation\ValidationException;
 
 class ChooseHouse extends Controller
 {
@@ -13,15 +12,27 @@ class ChooseHouse extends Controller
     public function choose(Request $request)
     {
         $validated = $request->validate([
-            'nom' => 'required|string|max:100',
-            'traits' => 'required|string|max:1000',
+            'name' => 'required|string|max:100|min:3',
+            'origin' => 'required|string|max:1000|min:50',
+            'personality' => 'required|string|max:1000|min:50',
+            'ambitions' => 'required|string|max:1000|min:50',
         ], [
-            'nom.required' => 'Le nom du joueur est requis.',
-            'traits.required' => 'La description des traits est requise.',
+            'name.required' => 'Le nom du joueur est requis.',
+            'origin.required' => 'Les origines du joueur sont requises.',
+            'personality.required' => 'La description de la personnalité est requise.',
+            'ambitions.required' => 'Les ambitions du joueur sont requises.',
         ]);
 
-        $nom = $validated['nom'];
-        $traits = $validated['traits'];
+        // Réponse de test
+        if (env('FAKE_RESPONSE')) {
+            $fakeResponse = "Ô, Zeeva, douce âme errante dans les couloirs magiques d'Havengard. Je vois les éclats de lumière qui habitent ton cœur, une chaleur palpable émanant de ta bonté. Tes chants, tels des murmures enchantés, s'élèvent au-dessus des brouhahas du quotidien, apportant réconfort et joie à ceux qui t'entourent. La mélodie de ta voix n'est pas seulement une mélodie, mais un écho de ta bienveillance innée. Ton amour pour l'apprentissage, ta soif de connaissance, illuminent ta voie et révèlent une curiosité profonde. Oh, quel bonheur de voir une âme si impliquée dans la quête du savoir, désireuse d'explorer chaque recoin de la sagesse. Et lorsque l'impulsion d'aider tes amis se manifeste, c'est là que véritablement ton essence brille, comme la lueur d'une étoile dans la nuit sombre. Avec cette loyauté et ce dévouement qui te définissent, tu te dresses comme un pilier pour tes camarades, toujours prête à tendre la main, à soutenir ceux qui en ont besoin. Mais sache, chère Zeeva, que ce que tu embodies se mêle aussi à l'esprit tumultueux du travail acharné, l'altruisme tissé dans la toile de ton être. Ainsi, après avoir contemplé ton cœur et ton esprit, révélons le tapis tissé des possibilités. À quelle maison destin est-il temps de te confier ? La réponse se dessine dans les ombres et les lumières : Tu iras à Rongebois !";
+            return $this->getResponse($fakeResponse);
+        }
+
+        $name = $validated['name'];
+        $origin = $validated['origin'];
+        $personality = $validated['personality'];
+        $ambitions = $validated['ambitions'];
 
         $systemContent = <<<'EOT'
 Tu es le miroir de vosraces de l'univers d'Havengard, une école magique dans un serveur GTA RP inspiré de Harry Potter. Ta mission est de répartir les joueurs dans l'une des quatre maisons suivantes en te basant sur leur caractère, leurs réponses ou leur comportement.
@@ -47,13 +58,28 @@ Valeurs : persévérance, entraide, modestie, loyauté.
 Traits : travailleurs, solidaires, fidèles, altruistes.
 EOT;
 
+        $userPrompt = <<<EOT
+Tu es un ancien miroir magique, mystérieux et solennel, dans l'univers RP d'Havengard, une école magique. Tu parles directement au joueur comme si tu le regardais dans les yeux. Ton discours doit être fluide, immersif, ancien, mais uniquement constitué de ce que le miroir dit à haute voix. Ne décris rien. N’utilise pas d’astérisques, ni de narration, ni de mise en scène. Pas de * ni de parenthèses. Juste du discours parlé. Termine toujours par une phrase seule, claire et solennelle qui indique dans quelle maison va le joueur, par exemple : "Tu iras à Rongebois !"
+
+Le joueur se nomme $name.
+
+Voici ce que tu sais à son sujet :
+
+- Origines : $origin
+- Personnalité : $personality
+- Ambitions : $ambitions
+
+Analyse ces trois aspects, puis prononce le verdict du miroir avec mystère et gravité. N’écris que ce que le miroir dit à voix haute.
+EOT;
+
+
         $response = Http::withOptions([
             'verify' => !app()->isLocal(), // true en prod, false en local
         ])->withToken(env('OPENAI_API_KEY'))->post('https://api.openai.com/v1/chat/completions', [
             'model' => "gpt-4o-mini",
             'messages' => [
                 ['role' => 'system', 'content' => $systemContent],
-                ['role' => 'user', 'content' => "Le joueur s'appelle $nom. $traits"]
+                ['role' => 'user', 'content' => $userPrompt]
             ]
         ]);
 
@@ -63,9 +89,31 @@ EOT;
 
         $reply = $response->json('choices.0.message.content');
 
+        return $this->getResponse($reply);
+    }
+
+    private function getResponse($result)
+    {
+        $house = $this->getHouseFromResult($result);
         return response()->json([
-            'message' => $reply
+            'message' => $result,
+            'house' => $house
         ]);
+    }
+
+    private function getHouseFromResult($result)
+    {
+        $result = strtolower($result);
+        if (strpos($result, 'briselune') !== false) {
+            return 'briselune';
+        } elseif (strpos($result, 'vervenin') !== false) {
+            return 'vervenin';
+        } elseif (strpos($result, 'rongebois') !== false) {
+            return 'rongebois';
+        } elseif (strpos($result, 'lombrasier') !== false) {
+            return 'lombrasier';
+        }
+        return null;
     }
 
 }
