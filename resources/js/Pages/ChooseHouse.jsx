@@ -1,5 +1,5 @@
 import { Head } from '@inertiajs/react';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import axios from "axios";
 
 export default function ChooseHouse({}) {
@@ -15,6 +15,11 @@ export default function ChooseHouse({}) {
     const [displayedText, setDisplayedText] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const [isSubmitted, setIsSubmitted] = useState(false);
+    const [textSpeed, setTextSpeed] = useState(1);
+
+    const indexRef = useRef(0);
+    const timeoutRef = useRef(null);
+    const houseRef = useRef('');
 
     const handleInputChange = (event) => {
         const { name, value } = event.target;
@@ -64,6 +69,7 @@ export default function ChooseHouse({}) {
         setIsLoading(true);
         setHouse(null);
         setDisplayedText('');
+        indexRef.current = 0;
         try {
             const apiClient = axios.create({
                 baseURL: import.meta.env.VITE_REACT_APP_API_URL,
@@ -74,6 +80,7 @@ export default function ChooseHouse({}) {
             });
 
             const response = await apiClient.post('/choose-house', form);
+            houseRef.current = response.data.message;
             setHouse(response.data.message);
         } catch (error) {
             if (error.response?.data?.errors) {
@@ -86,34 +93,40 @@ export default function ChooseHouse({}) {
         setIsLoading(false);
     };
 
+    const revealText = () => {
+        clearTimeout(timeoutRef.current);
+        if (indexRef.current < houseRef.current.length) {
+            const char = houseRef.current.charAt(indexRef.current);
+            setDisplayedText((prev) => prev + char);
+            indexRef.current++;
+
+            let delay = 40 / textSpeed;
+            if (char === '.' || char === '!' || char === '?') delay = 500 / textSpeed;
+            else if (char === ',') delay = 250 / textSpeed;
+            if (indexRef.current > houseRef.current.length - 20 && /[A-Za-z]/.test(char)) {
+                delay += 100 / textSpeed;
+            }
+
+            timeoutRef.current = setTimeout(revealText, delay);
+        }
+    };
+
     useEffect(() => {
         if (house) {
-            let index = 0;
-            const delayAfterPunctuation = (char) => {
-                if (char === '.' || char === '!' || char === '?') return 500;
-                if (char === ',') return 250;
-                return 40;
-            };
-
-            const revealText = () => {
-                if (index < house.length) {
-                    const char = house.charAt(index);
-                    setDisplayedText((prev) => prev + char);
-                    index++;
-                    let delay = delayAfterPunctuation(char);
-
-                    // Suspense effect before revealing house name
-                    if (index > house.length - 20 && /[A-Za-z]/.test(char)) {
-                        delay += 150;
-                    }
-
-                    setTimeout(revealText, delay);
-                }
-            };
-
+            clearTimeout(timeoutRef.current);
+            setDisplayedText('');
+            indexRef.current = 0;
             revealText();
         }
+        return () => clearTimeout(timeoutRef.current);
     }, [house]);
+
+    useEffect(() => {
+        if (house && indexRef.current < houseRef.current.length) {
+            revealText();
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [textSpeed]);
 
     return (
         <>
@@ -185,7 +198,25 @@ export default function ChooseHouse({}) {
                 ) : (
                     <div className="text-center text-lg font-medium min-h-[4rem]">
                         {isLoading && <p>The mirror is thinking...</p>}
-                        {!isLoading && displayedText && <p>{displayedText}</p>}
+                        {!isLoading && (
+                            <>
+                                <p>{displayedText}</p>
+                                <div className="mt-4 flex justify-center gap-2">
+                                    <button
+                                        onClick={() => setTextSpeed((s) => Math.min(s + 0.5, 5))}
+                                        className="px-3 py-1 bg-green-500 text-white rounded"
+                                    >
+                                        Speed up
+                                    </button>
+                                    <button
+                                        onClick={() => setTextSpeed((s) => Math.max(s - 0.5, 0.5))}
+                                        className="px-3 py-1 bg-yellow-500 text-white rounded"
+                                    >
+                                        Slow down
+                                    </button>
+                                </div>
+                            </>
+                        )}
                     </div>
                 )}
             </div>
