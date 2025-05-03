@@ -141,7 +141,7 @@ export default function ChooseHouse({}) {
         <>
             <Head title="Rejoindre une maison"/>
             <div className="mirror-card max-w-2xl mx-auto">
-                <div className="p-4 max-w-md mx-auto pt-[180px]">
+                <div className="p-4 custom-max-width mx-auto pt-[180px]">
                     <div className="text-center mb-4">
                         <h1 className="text-xl font-bold">Miroir de VosRaces</h1>
                         <small>Ouvrez votre coeur et laissez le miroir pénétrer votre âme</small>
